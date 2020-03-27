@@ -6,6 +6,7 @@ import (
 )
 
 func Test(c *gin.Context) {
-	// common.Success(c)
-	common.Success(c, common.WithCode(403), common.WithMsg("坤哥牛逼"))
+	common.Success(c)
+	// common.Failed(c)
+	// common.Success(c, common.WithCode(403), common.WithMsg("坤哥牛逼"))
 }

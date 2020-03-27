@@ -1,6 +1,7 @@
 package common
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +10,8 @@ import (
 // 定义自定义的参数集合
 type Option struct {
 	Code int                    `json:"code"`
-	Time int64                  `json:"time"`
 	Msg  string                 `json:"msg"`
+	Time int64                  `json:"time"`
 	Data map[string]interface{} `json:"data"`
 }
 
@@ -47,13 +48,31 @@ func Success(c *gin.Context, modOptions ...ModOption) {
 	option := Option{
 		Code: code,
 		Msg:  msg,
-		Data: data,
 		Time: time,
+		Data: data,
 	}
 
 	for _, fn := range modOptions {
 		fn(&option)
 	}
 
-	c.JSON(200, option)
+	c.JSON(http.StatusOK, option)
+}
+
+// 错误响应json数据体
+func Failed(c *gin.Context, modOptions ...ModOption) {
+	code := 400
+	msg := "请求失败!~"
+	time := time.Now().Unix()
+	data := make(map[string]interface{})
+	option := Option{
+		Code: code,
+		Msg:  msg,
+		Time: time,
+		Data: data,
+	}
+	for _, fn := range modOptions {
+		fn(&option)
+	}
+	c.JSON(http.StatusOK, option)
 }
