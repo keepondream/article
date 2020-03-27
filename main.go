@@ -1,13 +1,17 @@
 package main
 
 import (
+	"github.com/keepondream/article/migrations"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/keepondream/article/route"
 )
 
-var db = make(map[string]string)
+var db *gorm.DB
 
 func setupRouter() *gin.Engine {
 	// Disable Console Color
@@ -19,55 +23,16 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
-	// Get user value
-	r.GET("/user/:name", func(c *gin.Context) {
-		user := c.Params.ByName("name")
-		value, ok := db[user]
-		if ok {
-			c.JSON(http.StatusOK, gin.H{"user": user, "value": value})
-		} else {
-			c.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
-		}
-	})
-
-	// Authorized group (uses gin.BasicAuth() middleware)
-	// Same than:
-	// authorized := r.Group("/")
-	// authorized.Use(gin.BasicAuth(gin.Credentials{
-	//	  "foo":  "bar",
-	//	  "manu": "123",
-	//}))
-	authorized := r.Group("/", gin.BasicAuth(gin.Accounts{
-		"foo":  "bar", // user:foo password:bar
-		"manu": "123", // user:manu password:123
-	}))
-
-	authorized.POST("admin", func(c *gin.Context) {
-		user := c.MustGet(gin.AuthUserKey).(string)
-
-		// Parse JSON
-		var json struct {
-			Value string `json:"value" binding:"required"`
-		}
-
-		if c.Bind(&json) == nil {
-			db[user] = json.Value
-			c.JSON(http.StatusOK, gin.H{"status": "ok"})
-		}
-	})
-
-	return r
-}
-
 func main() {
+	// 连接数据库
+	var err error
+	db, err = gorm.Open("mysql", "root:W8888888w@/article?charset=utf8&parseTime=True&loc=Local")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
-	// m3 := map[string]interface{}{
-	// 	"a": 200,
-	// 	"b": []int{1, 2, 3},
-	// }
-	// fmt.Println(common.Success(200, common.WithMsg("world"), common.WithData(m3)))
+	migrations.AutoInit(db)
+
 	route.GinRun(":8080")
-	// // r := setupRouter()
-	// // // Listen and Server in 0.0.0.0:8080
-	// // r.Run(":8080")
 }
