@@ -1,3 +1,0 @@
-# github.com/keepondream/article
-./main.go:26:6: syntax error: unexpected main, expecting (
-./main.go:28:2: syntax error: unexpected var at end of statement

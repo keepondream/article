@@ -1,13 +1,15 @@
 package migrations
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/keepondream/article/common"
 	"github.com/keepondream/article/model"
 )
 
-func AutoInit(db *gorm.DB) {
-
+// migration 数据库迁移
+func AutoInit() {
+	db := common.Db()
+	// 文章表初始化
 	article := &model.Article{}
 	db.AutoMigrate(article)
+
 }
