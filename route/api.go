@@ -37,8 +37,8 @@ func Api(r *gin.Engine, prefix string) {
 
 	// 文章路由
 	api.POST("article", controller.ArticleCreate)
-	api.PUT("article", controller.ArticleUpdate)
-	api.DELETE("article", controller.ArticleDelete)
-	api.GET("article", controller.ArticleDetail)
+	api.PUT("article:id", controller.ArticleUpdate)
+	api.DELETE("article:id", controller.ArticleDelete)
+	api.GET("article/:id", controller.ArticleDetail)
 	api.GET("articleList", controller.ArticleList)
 }

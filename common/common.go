@@ -1,7 +1,9 @@
 package common
 
 import (
+	"encoding/json"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -75,4 +77,26 @@ func Failed(c *gin.Context, modOptions ...ModOption) {
 		fn(&option)
 	}
 	c.JSON(http.StatusOK, option)
+}
+
+// 结构体转map1 保留 Model
+func Struct2Map(obj interface{}) map[string]interface{} {
+	t := reflect.TypeOf(obj)
+	v := reflect.ValueOf(obj)
+
+	data := make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		data[t.Field(i).Name] = v.Field(i).Interface()
+	}
+	return data
+}
+
+// 结构体转map2
+func StructToMapViaJson(data interface{}) map[string]interface{} {
+	m := make(map[string]interface{})
+	//struct 转json
+	j, _ := json.Marshal(data)
+	//json 转map
+	json.Unmarshal(j, &m)
+	return m
 }
