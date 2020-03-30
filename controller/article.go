@@ -16,7 +16,7 @@ func ArticleCreate(c *gin.Context) {
 		common.Failed(c, common.WithMsg("请求参数有误!"))
 		return
 	}
-	db := common.Db()
+	db := common.GetDB()
 	db.Save(&form)
 	if form.ID > 0 {
 		common.Success(c, common.WithData(common.StructToMapViaJson(form)))
@@ -29,7 +29,21 @@ func ArticleCreate(c *gin.Context) {
 
 // 更新
 func ArticleUpdate(c *gin.Context) {
+	var form model.Article
+	var _form model.Article
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		common.Failed(c, common.WithMsg("请求参数有误"))
+		return
+	}
+	c.Bind(&_form)
+	db := common.GetDB()
+	db.Debug().First(&form, id)
 
+	form.Title = _form.Title
+	form.Content = _form.Content
+	db.Debug().Save(&form)
+	common.Success(c)
 }
 
 // 删除
@@ -50,8 +64,9 @@ func ArticleDetail(c *gin.Context) {
 		return
 	}
 	fmt.Println(id)
-	db := common.Db()
-	db.First(&form, id)
+	db := common.GetDB()
+	db.Debug().First(&form, id)
+
 	if form.ID == 0 {
 		common.Failed(c, common.WithMsg("数据不存在"))
 		return

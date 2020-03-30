@@ -7,7 +7,7 @@ import (
 
 // migration 数据库迁移
 func AutoInit() {
-	db := common.Db()
+	db := common.GetDB()
 	// 文章表初始化
 	article := &model.Article{}
 	db.AutoMigrate(article)
