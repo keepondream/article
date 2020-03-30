@@ -30,6 +30,7 @@ func ArticleCreate(c *gin.Context) {
 // 更新
 func ArticleUpdate(c *gin.Context) {
 	var form model.Article
+	// 此处个人理解 避免了获取不同的请求头类型的参数问题,还可以有效的避免错误,则定义了_form进行c.bind操作
 	var _form model.Article
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id <= 0 {
