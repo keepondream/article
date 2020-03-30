@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -49,11 +48,30 @@ func ArticleUpdate(c *gin.Context) {
 
 // 删除
 func ArticleDelete(c *gin.Context) {
-
+	var article model.Article
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		common.Failed(c, common.WithMsg("请求参数有误"))
+		return
+	}
+	db := common.GetDB()
+	db.Debug().First(&article, id)
+	if article.ID == 0 {
+		common.Failed(c, common.WithMsg("删除失败"))
+		return
+	}
+	db.Debug().Delete(&article)
+	common.Success(c, common.WithMsg("删除成功"))
 }
 
 // 列表
 func ArticleList(c *gin.Context) {
+	var articles []model.Article
+	db := common.GetDB()
+	db.Find(&articles)
+	res := make(map[string]interface{})
+	res["list"] = &articles
+	common.Success(c, common.WithData(res))
 }
 
 // 详情
@@ -64,7 +82,6 @@ func ArticleDetail(c *gin.Context) {
 		common.Failed(c, common.WithMsg("请求参数有误"))
 		return
 	}
-	fmt.Println(id)
 	db := common.GetDB()
 	db.Debug().First(&form, id)
 

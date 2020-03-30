@@ -9,7 +9,6 @@ func main() {
 
 	// 初始化数据库表结构
 	migrations.AutoInit()
-
 	// 启动
 	route.GinRun(":8080")
 }
