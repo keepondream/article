@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 
+	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -15,10 +16,15 @@ const (
 	MYSQL_USER     = "root"
 	MYSQL_PASSWORD = "W8888888w"
 	MYSQL_DBNAME   = "article"
+	REDIS_ADDR     = "127.0.0.1"
+	REDIS_PORT     = "6379"
+	REDIS_PASSWORD = ""
+	REDIS_DB       = 0
 )
 
 var _db *gorm.DB
 var err error
+var _redis *redis.Client
 
 // 初始化函数,golang特性,每个包初始化的时候会自动执行init函数,这里用来初始化gorm
 func init() {
@@ -38,10 +44,22 @@ func init() {
 	_db.DB().SetMaxIdleConns(20)  // 连接池最大允许的空闲连接数,如果没有SQL任务需要执行的连接数大于20,超过的连接会被连接池关闭
 
 	_db.LogMode(true)
+
+	// 初始化一个新的Redis client, go-redis 包自带了连接池,会自动维护Redis连接,因此创建一次client即可,不要查询一次Redis就关闭client
+	_redis = redis.NewClient(&redis.Options{
+		Addr:     REDIS_ADDR + ":" + REDIS_PORT,
+		Password: REDIS_PASSWORD,
+		DB:       REDIS_DB,
+	})
 }
 
 // 获取gorm db对象, 其他包需要执行数据库查询的时候,只需要通过common.GetDB()获取db对象接口
 // 不用担心协程并发使用同样的db对象会共用同一个连接,db对象在调用他的方法的时候会冲数据库连接池中获取新的连接
 func GetDB() *gorm.DB {
 	return _db
+}
+
+// 获取Redis对象
+func GetRedis() *redis.Client {
+	return _redis
 }
