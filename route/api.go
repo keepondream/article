@@ -41,4 +41,8 @@ func Api(r *gin.Engine, prefix string) {
 	api.DELETE("article/:id", controller.ArticleDelete)
 	api.GET("article/:id", controller.ArticleDetail)
 	api.GET("articleList", controller.ArticleList)
+
+	// 上传文件
+	api.POST("upload", controller.TransformFile)
+
 }
