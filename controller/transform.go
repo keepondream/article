@@ -5,44 +5,81 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/keepondream/article/common"
+	"github.com/rs/xid"
 )
 
 func TransformFile(c *gin.Context) {
-	err := c.Request.ParseMultipartForm(200000)
+	// 1.获取文件
+	// FormFile方法会读取参数“file”后面的文件名，返回值是一个File指针，和一个FileHeader指针，和一个err错误。
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		common.Failed(c, common.WithMsg("文件获取失败"))
+		return
+	}
+	// 2.获取文件名称,文件地址,文件格式
+	// header调用Filename方法，就可以得到文件名
+	oldFullFilename := header.Filename
+	oldFullFilename = strings.Replace(oldFullFilename, " ", "", -1)
+	oldFullFilename = strings.Replace(oldFullFilename, "　", "", -1)
+	oldFileNameArr := strings.Split(oldFullFilename, ".")
+	oldFileExt := oldFileNameArr[len(oldFileNameArr)-1]
+	oldFileName := strings.Join(oldFileNameArr[0:len(oldFileNameArr)-1], ".")
+	fmt.Println(oldFileExt, oldFileName)
+	fmt.Println(file, err)
+	// 3.获取需要转换的格式
+	transformExt := c.PostForm("ext")
+	if transformExt == "" {
+		common.Failed(c, common.WithMsg("请求参数有误!"))
+		return
+	}
+
+	// 4.获取项目路劲,并检测创建文件上传目录
+	basePath := common.GetBasePath()
+	filePath := basePath + "/libreoffice/"
+
+	if !common.Exists(filePath) {
+		common.Mkdir(filePath)
+	}
+
+	// 5.将文件挪入libreoffice,并给一个唯一的新文件名称
+	newFileId := xid.New()
+	newFileName := oldFileName + "_00_" + newFileId.String() + "." + oldFileExt
+	out, err := os.Create(filePath + newFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// 获取表单
-	form := c.Request.MultipartForm
-	// 获取参数upload后面的多个文件名,存放到数组files里面
-	files := form.File["upload"]
-	// 遍历数组,每去除一个file就拷贝一次
-	for i, _ := range files {
-		file, err := files[i].Open()
-		defer file.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fileName := files[i].Filename
-		fmt.Println(fileName)
-		// fileNames := strings.Split('.', fileName)
-		// fmt.Println(fileNames)
-
-		out, err := os.Create(fileName)
-		defer out.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_, err = io.Copy(out, file)
-		if err != nil {
-			log.Fatal(err)
-		}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 根据需要转换的类型,进行文件docker命令生成
+	switch transformExt {
+	case "pdf":
+		// 转换成PDF
+		fmt.Println("pdf")
+	case "jpg", "jpeg", "png":
+		// 转换成图片
+		fmt.Println("jjp")
+	case "doc", "docx":
+		// 转换成word
+		fmt.Println("to word")
+	default:
+		common.Failed(c, common.WithMsg("不支持该类型"))
+		return
 	}
 
-	log.Println(files)
 	common.Success(c)
+	return
+
+	// 调用docker容器,根据需要转换的格式进行处理
+
+	// 将处理好的文件挪入服务器下载目录,并还原新的名称
+
+	// 返出组装好的下载链接
+
 }
