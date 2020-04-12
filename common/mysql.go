@@ -11,7 +11,7 @@ import (
 // 定义MySQL连接参数常量
 const (
 	MYSQL_HOST = "127.0.0.1"
-	MYSQL_PORT = 3306
+	MYSQL_PORT = 33065
 	MYSQL_USER = "root"
 	// MYSQL_PASSWORD = "W8888888w"
 	MYSQL_PASSWORD = "root"

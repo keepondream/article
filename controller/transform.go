@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -47,8 +48,10 @@ func TransformFile(c *gin.Context) {
 
 	// 5.将文件挪入libreoffice,并给一个唯一的新文件名称
 	newFileId := xid.New()
-	newFileName := oldFileName + "_00_" + newFileId.String() + "." + oldFileExt
-	out, err := os.Create(filePath + newFileName)
+	newFileName := oldFileName + "_00_" + newFileId.String()
+	newFileFullName := newFileName + "." + oldFileExt
+	fmt.Println(newFileFullName)
+	out, err := os.Create(filePath + newFileFullName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,11 +60,19 @@ func TransformFile(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	shellCommand := ""
+	transformFileName := ""
 	// 根据需要转换的类型,进行文件docker命令生成
 	switch transformExt {
 	case "pdf":
 		// 转换成PDF
 		fmt.Println("pdf")
+		// 被转换文件的名称
+		transformFileName = newFileName + ".pdf"
+		if (oldFileExt == "png") || (oldFileExt == "jpg") || (oldFileExt == "jpeg") {
+			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert " + newFileFullName + " " + transformFileName + "'"
+			fmt.Println(shellCommand)
+		}
 	case "jpg", "jpeg", "png":
 		// 转换成图片
 		fmt.Println("jjp")
@@ -72,6 +83,18 @@ func TransformFile(c *gin.Context) {
 		common.Failed(c, common.WithMsg("不支持该类型"))
 		return
 	}
+
+	if shellCommand == "" {
+		common.Failed(c, common.WithMsg("不支持该类型"))
+		return
+	}
+
+	logfile := " >> " + filePath + "file.log"
+	cmd := exec.Command("sh", "-c", shellCommand+logfile)
+
+	transformOut, err := cmd.Output()
+
+	fmt.Println(string(transformOut), err)
 
 	common.Success(c)
 	return
