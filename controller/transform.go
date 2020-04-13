@@ -28,6 +28,7 @@ func TransformFile(c *gin.Context) {
 	oldFullFilename = strings.Replace(oldFullFilename, "　", "", -1)
 	oldFileNameArr := strings.Split(oldFullFilename, ".")
 	oldFileExt := oldFileNameArr[len(oldFileNameArr)-1]
+	oldFileExt = strings.ToLower(oldFileExt)
 	oldFileName := strings.Join(oldFileNameArr[0:len(oldFileNameArr)-1], ".")
 	fmt.Println(oldFileExt, oldFileName)
 	fmt.Println(file, err)
@@ -37,6 +38,7 @@ func TransformFile(c *gin.Context) {
 		common.Failed(c, common.WithMsg("请求参数有误!"))
 		return
 	}
+	transformExt = strings.ToLower(transformExt)
 
 	// 4.获取项目路劲,并检测创建文件上传目录
 	basePath := common.GetBasePath()
@@ -62,20 +64,22 @@ func TransformFile(c *gin.Context) {
 	}
 	shellCommand := ""
 	transformFileName := ""
+	// 被转换文件的名称
+	transformFileName = newFileName + "." + transformExt
 	// 根据需要转换的类型,进行文件docker命令生成
 	switch transformExt {
 	case "pdf":
 		// 转换成PDF
 		fmt.Println("pdf")
-		// 被转换文件的名称
-		transformFileName = newFileName + ".pdf"
 		if (oldFileExt == "png") || (oldFileExt == "jpg") || (oldFileExt == "jpeg") {
 			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert " + newFileFullName + " " + transformFileName + "'"
-			fmt.Println(shellCommand)
 		}
 	case "jpg", "jpeg", "png":
 		// 转换成图片
 		fmt.Println("jjp")
+		if oldFileExt == "pdf" {
+			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert  -density 300  -background white  -alpha remove -append " + newFileFullName + " " + transformFileName + "'"
+		}
 	case "doc", "docx":
 		// 转换成word
 		fmt.Println("to word")
@@ -88,6 +92,7 @@ func TransformFile(c *gin.Context) {
 		common.Failed(c, common.WithMsg("不支持该类型"))
 		return
 	}
+	fmt.Println(shellCommand)
 
 	logfile := " >> " + filePath + "file.log"
 	cmd := exec.Command("sh", "-c", shellCommand+logfile)
