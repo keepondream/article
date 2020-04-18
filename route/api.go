@@ -33,7 +33,7 @@ func Api(r *gin.Engine, prefix string) {
 		fmt.Println("api login success")
 	})
 
-	api.GET("test", controller.Test)
+	api.POST("test", controller.Test)
 
 	// 文章路由
 	api.POST("article", controller.ArticleCreate)
