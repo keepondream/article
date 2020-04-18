@@ -68,14 +68,14 @@ func Test(c *gin.Context) {
 	// req := gotenberg.NewOfficeRequest(doc)
 
 	//# html -> pdf
-	// req := gotenberg.NewURLRequest("https://da.hire66.com/pdf/52")
+	// req := gotenberg.NewURLRequest("https://www.baidu.com")
 	// req.Margins(gotenberg.NoMargins)
 
 	dest := filePath + newFileName + ".pdf"
 	gc.Store(req, dest)
 
 	// req.SetFlags(req.LstdFlags | req.Lcost) // 输出格式显示请求耗时
-	// r, _ := req.Get("https://api.df5g.com/api/basicinfo")
+	// r, _ := req.Get("https://www.baidu.com")
 	// log.Println(r)
 	// if r.Cost() > 3*time.Second {
 	// 	log.Println("WARN: slow request:", r)
