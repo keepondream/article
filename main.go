@@ -7,6 +7,8 @@ import (
 
 func main() {
 
+	// common.Logger()
+	// return
 	// client := common.GetRedis()
 	// // 第三个参数代表key的过期时间，0代表不会过期。
 	// err := client.Set("key", "value2222", 0).Err()

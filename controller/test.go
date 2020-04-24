@@ -8,13 +8,59 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jung-kurt/gofpdf"
 	"github.com/keepondream/article/common"
 	"github.com/rs/xid"
+	"github.com/sirupsen/logrus"
 	"github.com/thecodingmachine/gotenberg-go-client/v7"
 )
 
 func Test(c *gin.Context) {
+	fmt.Println("cccccccccccccc")
 
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Hello, world")
+	err := pdf.OutputFileAndClose("hello.pdf")
+
+	// pdf := gofpdf.New("P", "mm", "A4", "")
+	// pdf.AddPage()
+	// pdf.SetFont("Arial", "", 11)
+	// pdf.Image("test.png", 10, 10, 30, 0, false, "", 0, "")
+	// pdf.Text(50, 20, "test.png")
+	// pdf.Image("test.gif", 10, 40, 30, 0, false, "", 0, "")
+	// pdf.Text(50, 50, "test.gif")
+	// pdf.Image("test.jpg", 10, 130, 30, 0, false, "", 0, "")
+	// pdf.Text(50, 140, "test.jpg")
+
+	// err := pdf.OutputFileAndClose("write_pdf_with_image.pdf")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	common.Success(c)
+	return
+
+	//Info级别的日志
+	common.Logger().WithFields(logrus.Fields{
+		"name": "hanyun",
+	}).Info("记录一下日志", "Info")
+	//Error级别的日志
+	common.Logger().WithFields(logrus.Fields{
+		"name": "hanyun",
+	}).Error("记录一下日志", "Error")
+	//Warn级别的日志
+	common.Logger().WithFields(logrus.Fields{
+		"name": "hanyun",
+	}).Warn("记录一下日志", "Warn")
+	//Debug级别的日志
+	common.Logger().WithFields(logrus.Fields{
+		"name": "hanyun",
+	}).Debug("记录一下日志", "Debug")
+
+	common.Success(c)
+
+	return
 	basePath := common.GetBasePath()
 	filePath := basePath + "/libreoffice/"
 	newFileId := xid.New()

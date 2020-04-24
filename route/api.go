@@ -3,6 +3,7 @@ package route
 import (
 	"fmt"
 
+	"github.com/keepondream/article/common"
 	"github.com/keepondream/article/controller"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,15 @@ import (
 func GinRun(port string) *gin.Engine {
 	// 初始化引擎
 	route := gin.Default()
+	// 加载html目录下的所有模板文件
+	route.LoadHTMLGlob("html/*")
+	// 加载logger 日志记录
+	route.Use(common.LoggerToFile())
+	// 有子目录，模板文件都在子目录里进行加载
+	// route.LoadHTMLGlob("html/**/*")
+
+	// HTML 路劲
+	route.GET("/", controller.Html)
 
 	// 设置api路由组
 	Api(route, "api")
@@ -44,5 +54,7 @@ func Api(r *gin.Engine, prefix string) {
 
 	// 上传文件
 	api.POST("upload", controller.TransformFile)
+	// 下载文件
+	api.GET("download/:filename", controller.DownloadFile)
 
 }

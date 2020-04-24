@@ -3,10 +3,13 @@ package common
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"syscall"
 )
 
@@ -105,4 +108,40 @@ func ExecCommand(commandName string, params []string) bool {
 	//阻塞直到该命令执行完成，该命令必须是被Start方法开始执行的
 	cmd.Wait()
 	return true
+}
+
+//  使用net/http 包的来查找文件的内容类型或 mime 类型。
+func GetFileContentType(out *os.File) (string, error) {
+
+	// 仅使用前512个字节来检测内容类型。
+	buffer := make([]byte, 512)
+
+	_, err := out.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	// 使用 net/http 包中的的DectectContentType函数,它将始终返回有效的 MIME 类型
+	// 对于没有匹配的未知类型，将返回 "application/octet-stream"
+	contentType := http.DetectContentType(buffer)
+
+	return contentType, nil
+}
+
+// 获取前面结果字节的二进制
+func bytesToHexString(src []byte) string {
+	res := bytes.Buffer{}
+	if src == nil || len(src) <= 0 {
+		return ""
+	}
+	temp := make([]byte, 0)
+	for _, v := range src {
+		sub := v & 0xFF
+		hv := hex.EncodeToString(append(temp, sub))
+		if len(hv) < 2 {
+			res.WriteString(strconv.FormatInt(int64(0), 10))
+		}
+		res.WriteString(hv)
+	}
+	return res.String()
 }

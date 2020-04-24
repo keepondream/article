@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -50,6 +51,7 @@ func TransformFile(c *gin.Context) {
 			common.Failed(c, common.WithMsg("文件获取失败"))
 			return
 		}
+
 		// 2.获取文件名称,文件地址,文件格式
 		// header调用Filename方法，就可以得到文件名
 		oldFullFilename := header.Filename
@@ -82,6 +84,7 @@ func TransformFile(c *gin.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 	} else {
 		oldFileExt = "html"
 		newFileName = oldFileName + "_00_" + newFileId.String()
@@ -234,4 +237,28 @@ func asyncLog(reader io.ReadCloser) error {
 		}
 	}
 	return nil
+}
+
+func DownloadFile(c *gin.Context) {
+	fileName := c.Param("filename")
+	if fileName == "" {
+		common.Failed(c, common.WithMsg("请求参数有误!"))
+	}
+	filePath := path.Join(common.GetBasePath(), "libreoffice")
+	fmt.Println(fileName, filePath)
+	// 打开文件
+	fileFullPath := path.Join(filePath, fileName)
+	file, err := os.Open(fileFullPath)
+	if err != nil {
+		common.Failed(c, common.WithMsg("文件不存在"))
+		return
+	}
+	// 结束后关闭文件
+	defer file.Close()
+
+	// 设置响应的header头
+
+	c.Writer.Header().Add("Content-type", "application/octet-stream")
+	c.Writer.Header().Add("content-disposition", "attachment; filename="+fileName)
+	c.File(fileFullPath)
 }
