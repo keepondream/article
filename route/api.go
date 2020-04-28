@@ -20,6 +20,12 @@ func GinRun(port string) *gin.Engine {
 	// 有子目录，模板文件都在子目录里进行加载
 	// route.LoadHTMLGlob("html/**/*")
 
+	// 加载静态文件目录
+	route.Static("/statics", "./statics")
+
+	// 加载静态文件
+	route.StaticFile("/favicon.ico", "./favicon.ico")
+
 	// HTML 路劲
 	route.GET("/", controller.Html)
 

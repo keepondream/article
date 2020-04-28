@@ -89,11 +89,14 @@ func TransformFile(c *gin.Context) {
 		oldFileExt = "html"
 		newFileName = oldFileName + "_00_" + newFileId.String()
 		newFileFullName = newFileName + "." + oldFileExt
+		oldFileName = newFileName
 	}
 	fmt.Println(transformExt, url)
 
 	// 被转换文件的名称
 	transformFileName = newFileName + "." + transformExt
+	// 下载用的文件名
+	downloadFileName := ""
 	// 根据需要转换的类型,进行文件docker命令生成
 	// 1. 	pdf -> 图片					  	 √
 	//    	pdf <- 图片                    	 √
@@ -122,16 +125,18 @@ func TransformFile(c *gin.Context) {
 		// 图片 -> pdf
 		if (oldFileExt == "png") || (oldFileExt == "jpg") || (oldFileExt == "jpeg") {
 			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert " + newFileFullName + " " + transformFileName + "'"
+			downloadFileName = transformFileName
 		}
 		// word -> pdf
 		if (oldFileExt == "docx") || (oldFileExt == "doc") {
 			shellCommand = "docker exec libreoffice_1 /bin/bash -c 'soffice --headless --invisible --convert-to pdf " + newFileFullName + "'"
-			shellCommand = ""
+			downloadFileName = transformFileName
 		}
 		// html -> pdf
 		if (oldFileExt == "html") && (url != "") {
 			// shellCommand = "docker run -i --rm -v " + filePath + ":/root icalialabs/wkhtmltopdf " + url + " " + filePath + transformFileName
 			shellCommand = "docker exec wkhtmltopdf_1 /bin/bash -c 'wkhtmltopdf -s A4  " + url + " " + transformFileName + "'"
+			downloadFileName = transformFileName
 		}
 	case "jpg", "jpeg", "png":
 		// 转换成图片
@@ -139,6 +144,7 @@ func TransformFile(c *gin.Context) {
 		// pdf -> 图片
 		if oldFileExt == "pdf" {
 			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert -density 300 -background white  -alpha remove -append " + newFileFullName + " " + transformFileName + "'"
+			downloadFileName = transformFileName
 		}
 	case "docx", "doc":
 		// 转换成word
@@ -151,6 +157,9 @@ func TransformFile(c *gin.Context) {
 			if transformExt == "docx" {
 				shellCommand = "docker exec libreoffice_1 /bin/bash -c 'soffice --headless --convert-to " + transformExt + ":\"Microsoft Word 2007/2010/2013 XML\" " + newFileFullName + "'"
 			}
+			downloadFileName = transformFileName
+			shellCommand = ""
+			// pdf 转 doc 和 docx 不行
 		}
 	case "xlsx":
 		// 转成Excel
@@ -161,14 +170,15 @@ func TransformFile(c *gin.Context) {
 		if oldFileExt == "pdf" {
 			// shellCommand = "docker run -i --rm -v " + filePath + ":/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 " + newFileFullName
 			shellCommand = "docker run -i --rm -v " + filePath + ":/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 " + newFileFullName
+			downloadFileName = transformFileName
 		}
 	default:
-		common.Failed(c, common.WithMsg("不支持该类型"))
+		common.Failed(c, common.WithMsg("暂时不支持该类型转换,请等待后续开发"))
 		return
 	}
 
 	if shellCommand == "" {
-		common.Failed(c, common.WithMsg("不支持该类型"))
+		common.Failed(c, common.WithMsg("暂时不支持该类型转换,请等待后续开发"))
 		return
 	}
 	fmt.Println(shellCommand)
@@ -189,35 +199,17 @@ func TransformFile(c *gin.Context) {
 
 	fmt.Println(outfile.String(), err)
 
-	// stdout, _ := cmd.StdoutPipe()
-	// stderr, _ := cmd.StderrPipe()
+	if err != nil {
+		common.Failed(c, common.WithMsg("文件转换失败,请稍后重试"))
+		return
+	}
 
-	// if err := cmd.Start(); err != nil {
-	// 	log.Printf("Error starting command: %s......", err.Error())
-	// 	return
-	// }
+	res := make(map[string]interface{})
+	res["filefullname"] = downloadFileName
+	res["filename"] = oldFileName
 
-	// go asyncLog(stdout)
-	// go asyncLog(stderr)
-
-	// if err := cmd.Wait(); err != nil {
-	// 	log.Printf("Error waiting for command execution: %s......", err.Error())
-	// 	return
-	// }
-
-	// transformOut, err := cmd.Output()
-
-	// fmt.Println(string(transformOut), err)
-
-	common.Success(c)
+	common.Success(c, common.WithData(res))
 	return
-
-	// 调用docker容器,根据需要转换的格式进行处理
-
-	// 将处理好的文件挪入服务器下载目录,并还原新的名称
-
-	// 返出组装好的下载链接
-
 }
 
 func asyncLog(reader io.ReadCloser) error {
