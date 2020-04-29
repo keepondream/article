@@ -1,50 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
 	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-	<link rel="stylesheet" type="text/css" href="/statics/css/index.css">
+	<title>DF5G免费文件在线转换</title>
+	<link rel="stylesheet" href="/statics/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/statics/css/sample.css">
+	<link rel="stylesheet" href="/statics/css/buttons.css">
 </head>
 
-<body>
+<body class="starlight">
+	<div class="wrapper">
+		<h1 class="title">DF5G免费文件在线转换</h1>
+		<h2 class="subtitle media">一个免费的在线文件互转网站</h2>
+		<div class="container media">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+					<div class="jumbotron box">
+						<h4>操作步骤说明</h4>
+						<p>第一步: 输入网址或者上传文件</p>
+						<p>第二步: 点击转换按钮</p>
+						<p>第三步: 耐心等待结果</p>
+						<h4>支持类型</h4>
+						<ol>
+							<li>png -> pdf</li>
+							<li>jpg -> pdf</li>
+							<li>jpeg -> pdf</li>
+							<li>doc -> pdf</li>
+							<li>docx -> pdf</li>
+							<li>链接 -> pdf</li>
+							<li>pdf -> jpg</li>
+							<li>pdf -> jpeg</li>
+							<li>pdf -> png</li>
+							<li>pdf -> html</li>
+						</ol>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+					<div class="jumbotron box" style="display: flex;align-items: center;">
+						<form id="projectForm">
+							<div class="form-group">
+								<label for="url">网址链接</label>
+								<input type="text" class="form-control" name="url" id="url" placeholder="请输入网址链接">
+							</div>
 
-	<h1 style="text-align: center;">DF5G免费文件转换</h1>
+							<div class="form-group">
+								<label for="file">转换文件</label>
+								<input type="file" name="file" id="file">
+								<p class="help-block">链接或者文件只能选其一进行转换</p>
+							</div>
+							<div class="form-group">
+								<label for="ext">转换类型</label>
+								<select name="ext" id="ext" style="display: block;">
+									<option value="">--请选择--</option>
+									<option value="pdf">PDF</option>
+									<option value="jpg">JPG</option>
+									<option value="jpeg">JPEG</option>
+									<option value="png">PNG</option>
+									<option value="doc">DOC</option>
+									<option value="docx">DOCX</option>
+									<option value="html">HTML</option>
+								</select>
+							</div>
+							<div class="form-group" style="text-align: right;">
+								<button type="button" class="btn btn-primary" id="submit">开始转换</button>
+							</div>
+						</form>
+					</div>
 
-
-	<form id="projectForm">
-		<label for="url">网址</label>
-		<input type="text" name="url" id="url" placeholder="请输入网址">
-		<br />
-		<label for="file">文件</label>
-		<input type="file" name="file" id="file">
-		<br />
-		<label for="ext">转换类型</label>
-		<select name="ext" id="ext">
-			<option value="">--请选择--</option>
-			<option value="pdf">PDF</option>
-			<option value="jpg">JPG</option>
-			<option value="jpeg">JPEG</option>
-			<option value="png">PNG</option>
-			<option value="doc">DOC</option>
-			<option value="docx">DOCX</option>
-			<option value="html">HTML</option>
-		</select>
-		<br />
-		<button type="button" class="btn_submit" id="submit">提交</button>
-	</form>
-
-	<div id="notice" class="hide">
-		<div id="notice_title">错误提示:</div>
-		<div id="notice_text">
-			sssssssss
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+					<div class="jumbotron box">
+						<h4>转换结果说明</h4>
+						<p>成功后下方会有文件链接</p>
+						<p>点击链接进行预览下载</p>
+						<div id="notice" style="display: none;">
+							<div id="notice_title">错误提示:</div>
+							<div id="notice_text">
+								sssssssss
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+
 	</div>
+
+	<script src="/statics/js/jquery-1.11.0.min.js" type="text/javascript"></script>
+	<script src="/statics/js/starlight.js"></script>
 </body>
 
 </html>
-<script src="/statics/js/jquery-3.5.0.js"></script>
 <script>
 	//在此书写你的jquery代码
 	$(function () {
@@ -80,7 +129,6 @@
 					enableBtn()
 					return
 				}
-				console.log("oldExt", oldExt)
 			}
 
 			let data = new FormData($("#projectForm")[0])
@@ -102,15 +150,12 @@
 							return
 						}
 						let html = `<a href="/api/download/${json.data.filefullname}" target="view_window">${json.data.filename}</a>`
-						console.log(html)
 						showNotice("转换成功:", '', html)
 					}
-					console.log("success", json, textStatus, xhr)
 				},
 				error: function (xhr, textStatus, errorThrown) {
 					enableBtn()
 					alert("转换失败,请稍后再试")
-					console.log("error", xhr, textStatus, errorThrown)
 				}
 			})
 		})
@@ -157,7 +202,6 @@
 		}
 
 		hideNotice()
-
 
 	});
 
