@@ -169,7 +169,8 @@ func TransformFile(c *gin.Context) {
 		// pdf -> html
 		if oldFileExt == "pdf" {
 			// shellCommand = "docker run -i --rm -v " + filePath + ":/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 " + newFileFullName
-			shellCommand = "docker run -i --rm -v " + filePath + ":/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 " + newFileFullName
+			// shellCommand = "docker run -i --rm -v " + filePath + ":/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 " + newFileFullName
+			shellCommand = "docker exec pdf2htmlex /bin/bash -c 'pdf2htmlEX --zoom 1.3 " + newFileFullName + "'"
 			downloadFileName = transformFileName
 		}
 	default:
