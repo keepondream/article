@@ -15,7 +15,6 @@
 	<div class="wrapper" style="height: 150px;">
 		<h1 class="title">DF5G免费文件在线转换</h1>
 		<h2 class="subtitle media">一个免费的在线文件互转网站</h2>
-
 	</div>
 	<div class="container" style="margin-top: 20px;">
 		<div class="row">
@@ -83,6 +82,7 @@
 						<div id="notice_text">
 							sssssssss
 						</div>
+						<div id="notice_qrcode"></div>
 					</div>
 				</div>
 			</div>
@@ -94,9 +94,6 @@
 			bottom: 20px;
 			text-align: center;
 			color: rgba(255,255,255,0.6);">
-
-
-
 				<span style="font-size:16px;">© </span>2020 ICP证：<a class="record" href="http://www.beian.miit.gov.cn/"
 					target="_block">苏ICP备19066419号-2</a>
 				<!--<a href="https://pages.coding.net/" class="record">「Hosted by Coding Pages」</a>-->
@@ -110,8 +107,6 @@
 					type="text/javascript"></script>
 				<script src="https://c.cnzz.com/core.php?web_id=1275012701&amp;show=pic&amp;t=z" charset="utf-8"
 					type="text/javascript"></script>
-
-
 			</div>
 			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"></div>
 		</div>
@@ -119,11 +114,10 @@
 
 	<script src="/statics/js/jquery-1.11.0.min.js" type="text/javascript"></script>
 	<script src="/statics/js/starlight.js"></script>
+	<script src="/statics/js/easy.qrcode.js" type="text/javascript" charset="utf-8"></script>
 </body>
 
 </html>
-
-
 
 <script>
 	//在此书写你的jquery代码
@@ -131,8 +125,8 @@
 		let notice = $("#notice")
 		let notice_text = $("#notice_text")
 		let notice_title = $("#notice_title")
+		let notice_qrcode = $("#notice_qrcode")
 		let submit = $("#submit")
-
 
 		$("#submit").on('click', function () {
 			disableBtn()
@@ -180,8 +174,9 @@
 							showNotice("温馨提示:", "文件转换失败,请稍后再试")
 							return
 						}
+						let a = window.location.host + "/api/download/" + json.data.filefullname
 						let html = `<a href="/api/download/${json.data.filefullname}" target="view_window">${json.data.filename}</a>`
-						showNotice("转换成功:", '', html)
+						showNotice("转换成功:", '', html, a)
 					}
 				},
 				error: function (xhr, textStatus, errorThrown) {
@@ -209,12 +204,14 @@
 		hideNotice = function () {
 			notice_title.text('')
 			notice_text.text('')
+			notice_qrcode.html('')
 			notice.hide()
 			enableBtn()
 		}
 
 		// 显示提示框,并设值
-		showNotice = function (title, text, html) {
+		showNotice = function (title, text, html, url) {
+			makeQrcode(url)
 			notice_title.text(title)
 			if (html) {
 				notice_text.html(html)
@@ -226,12 +223,45 @@
 
 		disableBtn = function () {
 			submit.attr('disabled', true)
+			hideNotice()
 		}
 
 		enableBtn = function () {
 			submit.attr('disabled', false)
 		}
 
+		makeQrcode = function (url) {
+			if (url.substr(0, 7).toLowerCase() == "http://" || url.substr(0, 8).toLowerCase() == "https://") {
+				url = url;
+			} else {
+				url = "http://" + url;
+			}
+			let config = {
+				text: url,
+				width: 240,
+				height: 240,
+
+				title: '微信扫码下载',
+				titleFont: "bold 18px Arial",
+				titleColor: "#fff",
+				titleBackgroundColor: "#3074B4",
+				titleHeight: 40,
+				titleTop: 25,
+
+				colorDark: "#000000",
+				colorLight: "#ffffff",
+
+
+				// === Timing Pattern Color
+				timing: '#e1622f',
+
+				correctLevel: QRCode.CorrectLevel.H, //  L, M, Q, H
+
+
+				dotScale: 0.4
+			}
+			var t = new QRCode(notice_qrcode[0], config);
+		}
 		hideNotice()
 
 	});
