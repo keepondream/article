@@ -165,23 +165,22 @@
 				data: data,
 				url: '/api/upload',
 				success: function (json, textStatus, xhr) {
-					enableBtn()
 					if (json.code == 400) {
 						showNotice("温馨提示:", json.msg)
-						return
 					} else {
 						if (!json.data.filefullname || !json.data.filename) {
 							showNotice("温馨提示:", "文件转换失败,请稍后再试")
-							return
+						} else {
+							let a = window.location.host + "/api/download/" + json.data.filefullname
+							let html = `<a href="/api/download/${json.data.filefullname}" target="view_window">${json.data.filename}</a>`
+							showNotice("转换成功:", '', html, a)
 						}
-						let a = window.location.host + "/api/download/" + json.data.filefullname
-						let html = `<a href="/api/download/${json.data.filefullname}" target="view_window">${json.data.filename}</a>`
-						showNotice("转换成功:", '', html, a)
 					}
+					enableBtn()
 				},
 				error: function (xhr, textStatus, errorThrown) {
-					enableBtn()
 					alert("转换失败,请稍后再试")
+					enableBtn()
 				}
 			})
 		})
