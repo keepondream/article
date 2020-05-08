@@ -111,7 +111,7 @@ func TransformFile(c *gin.Context) {
 	// 6. 	图片 -> excel                  	 ×
 	//    	图片 <- excel                  	 ×
 	// 7. 	图片 -> html                   	 ×
-	//    	图片 <- html                   	 ×
+	//    	图片 <- html(包含链接和文件)       √
 	// 8. 	word -> excel                 	×
 	//    	word <- excel 					×
 	// 9. 	word -> html 					×
@@ -146,6 +146,12 @@ func TransformFile(c *gin.Context) {
 			shellCommand = "docker exec imagemagick_1 /bin/bash -c 'convert -density 300 -background white  -alpha remove -append " + newFileFullName + " " + transformFileName + "'"
 			downloadFileName = transformFileName
 		}
+		// html文件 -> 图片
+		if oldFileExt == "html" {
+			shellCommand = "docker exec wkhtmltopdf_1 /bin/bash -c 'wkhtmltoimage  " + newFileFullName + " " + transformFileName + "'"
+			downloadFileName = transformFileName
+		}
+
 	case "docx", "doc":
 		// 转换成word
 		fmt.Println("to word")
