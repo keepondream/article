@@ -148,7 +148,7 @@ func TransformFile(c *gin.Context) {
 		}
 		// html文件 -> 图片
 		if oldFileExt == "html" {
-			shellCommand = "docker exec wkhtmltopdf_1 /bin/bash -c 'wkhtmltoimage  " + newFileFullName + " " + transformFileName + "'"
+			shellCommand = "docker exec wkhtmltopdf_1 /bin/bash -c 'wkhtmltoimage  " + url + " " + transformFileName + "'"
 			downloadFileName = transformFileName
 		}
 
