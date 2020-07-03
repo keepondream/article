@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -16,7 +17,13 @@ import (
 )
 
 func Test(c *gin.Context) {
-	fmt.Println("cccccccccccccc")
+	fmt.Println()
+	fmt.Println("start--------------")
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Printf("ctx.Request.body: %v", string(data))
+	fmt.Println("end---------------")
+	common.Failed(c)
+	return
 
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
