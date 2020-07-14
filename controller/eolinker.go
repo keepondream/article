@@ -64,6 +64,11 @@ func Eolinker(c *gin.Context) {
 		return
 	}
 
+	if data.ProjectName != "易报表" {
+		common.Success(c)
+		return
+	}
+
 	var OutMsg string
 
 	switch data.HookEvent {
